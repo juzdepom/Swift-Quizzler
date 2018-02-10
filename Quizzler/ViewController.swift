@@ -13,6 +13,7 @@ class ViewController: UIViewController {
     let allQuestions = QuestionBank()
     var pickedAnswer: Bool = false
     var questionNumber: Int = 0
+    var score: Int = 0
     
     @IBOutlet weak var questionLabel: UILabel!
     @IBOutlet weak var scoreLabel: UILabel!
@@ -21,11 +22,7 @@ class ViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
-        let firstQuestion = allQuestions.list[questionNumber]
-        questionLabel.text = firstQuestion.questionText
-        
-        
+        nextQuestion()
     }
 
 
@@ -35,7 +32,6 @@ class ViewController: UIViewController {
         } else if sender.tag == 2 {
             pickedAnswer = false
         }
-        
         checkAnswer()
         questionNumber = questionNumber + 1
         nextQuestion()
@@ -43,15 +39,18 @@ class ViewController: UIViewController {
     
     
     func updateUI() {
-      
+        scoreLabel.text = "Score: \(score)"
+        progressLabel.text = "\(questionNumber + 1)/\(allQuestions.list.count)"
+        progressBar.frame.size.width = (view.frame.size.width / 13) * CGFloat(questionNumber + 1)
     }
-    
 
     func nextQuestion() {
+        
         if questionNumber < allQuestions.list.count {
-           questionLabel.text = allQuestions.list[questionNumber].questionText
+            questionLabel.text = allQuestions.list[questionNumber].questionText
+            updateUI()
         } else {
-            var alert = UIAlertController(title: "Awesome", message: "You've finished all the questions. Start over?", preferredStyle: .alert)
+            let alert = UIAlertController(title: "Awesome", message: "You've finished all \(allQuestions.list.count) questions. Start over?", preferredStyle: .alert)
             let restartAction = UIAlertAction(title: "Restart", style: .default, handler: { (UIAlertAction) in
                 self.startOver()
             })
@@ -66,8 +65,10 @@ class ViewController: UIViewController {
     func checkAnswer() {
         let correctAnswer = allQuestions.list[questionNumber].answer
         if correctAnswer == pickedAnswer {
-            print("You got it")
+            score = score + 1
+            ProgressHUD.showSuccess("Correct!")
         } else {
+            ProgressHUD.showError("Wrong!")
             print("False")
         }
         
